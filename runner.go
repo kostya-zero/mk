@@ -6,26 +6,31 @@ import (
 	"runtime"
 )
 
-func LaunchCommand(args string) error {
-	var shell string
-	var launchArgument string
+type Runner struct {
+	shell          string
+	launchArgument string
+}
 
+func InitRunner() (runner Runner) {
 	switch runtime.GOOS {
 	case "windows":
-		shell = "cmd.exe"
-		launchArgument = "/C"
+		runner.shell = "powershell.exe"
+		runner.launchArgument = "-c"
 	case "linux":
-		shell = "bash"
-		launchArgument = "-c"
+		runner.shell = "bash"
+		runner.launchArgument = "-c"
 	case "darwin":
-		shell = "zsh"
-		launchArgument = "-c"
+		runner.shell = "zsh"
+		runner.launchArgument = "-c"
 	default:
-		shell = "sh"
-		launchArgument = "-c"
+		runner.shell = "sh"
+		runner.launchArgument = "-c"
 	}
+	return
+}
 
-	cmd := exec.Command(shell, launchArgument, args)
+func (r *Runner) LaunchCommand(args string) error {
+	cmd := exec.Command(r.shell, r.launchArgument, args)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

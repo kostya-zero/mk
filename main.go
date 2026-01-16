@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func runStep(recipe *Recipe, name string) error {
+func runStep(runner *Runner, recipe *Recipe, name string) error {
 	step, ok := recipe.Steps[name]
 	if !ok {
 		fmt.Println("step not found")
@@ -14,7 +14,7 @@ func runStep(recipe *Recipe, name string) error {
 
 	if step.RunBefore != nil {
 		for _, stepName := range step.RunBefore {
-			err := runStep(recipe, stepName)
+			err := runStep(runner, recipe, stepName)
 			if err != nil {
 				return err
 			}
@@ -22,7 +22,7 @@ func runStep(recipe *Recipe, name string) error {
 	}
 
 	for _, command := range step.Commands {
-		err := LaunchCommand(command)
+		err := runner.LaunchCommand(command)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = runStep(recipe, args.Step)
+	runner := InitRunner()
+	err = runStep(&runner, recipe, args.Step)
 	if err != nil {
 		fmt.Printf("error while running step '%s': %s\n", args.Step, err.Error())
 		os.Exit(1)
