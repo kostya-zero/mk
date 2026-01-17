@@ -2,10 +2,16 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
-func ParseRecipe(content string) (*Recipe, error) {
+type ParseError struct {
+	LineNumber int
+	Message    string
+}
+
+func ParseRecipe(content string) (*Recipe, *ParseError) {
 	recipe := new(Recipe)
 	recipe.Steps = make(map[string]Step)
 
@@ -34,6 +40,12 @@ func ParseRecipe(content string) (*Recipe, error) {
 				if leftovers != "" {
 					runBefore := strings.Split(leftovers, " ")
 					step.RunBefore = runBefore
+					if slices.Contains(runBefore, newStepName) {
+						return nil, &ParseError{
+							LineNumber: index + 1,
+							Message:    fmt.Sprintf("possible recursion in step \"%s\" ", newStepName),
+						}
+					}
 				}
 
 				if strings.HasSuffix(newStepName, "*") {
@@ -43,7 +55,10 @@ func ParseRecipe(content string) (*Recipe, error) {
 
 				writingStep = true
 			} else {
-				return nil, fmt.Errorf("bad step initialization on line %d", index)
+				return nil, &ParseError{
+					LineNumber: index + 1,
+					Message:    "this is not a valid step initialization syntax",
+				}
 			}
 		} else {
 			if trimmedLine == "" {

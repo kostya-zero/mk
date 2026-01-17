@@ -41,9 +41,9 @@ func main() {
 	}
 
 	dataString := string(data)
-	recipe, err := ParseRecipe(dataString)
-	if err != nil {
-		fmt.Printf("error while parsing recipe: %s\n", err.Error())
+	recipe, parseError := ParseRecipe(dataString)
+	if parseError != nil {
+		fmt.Printf("[Mkfile:%d] error: %s\n", parseError.LineNumber, parseError.Message)
 		os.Exit(1)
 	}
 
