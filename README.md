@@ -27,6 +27,7 @@ tidy:
     go mod tidy
 
 # You can run tasks before the specified task.
+# For example, run tidy task before build.
 build: tidy
     go build . -o mk
 ```
