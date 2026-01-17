@@ -43,14 +43,15 @@ func printHelp() {
 }
 
 func main() {
-	args := ParseArgs()
+	args := os.Args
+	cli := ParseArgs(args[1:])
 
-	if args.Help {
+	if cli.Help {
 		printHelp()
 		return
 	}
 
-	if args.Version {
+	if cli.Version {
 		fmt.Printf("mk %s", version)
 		return
 	}
@@ -69,9 +70,9 @@ func main() {
 	}
 
 	runner := InitRunner()
-	err = runStep(&runner, recipe, args.Step)
+	err = runStep(&runner, recipe, cli.Step)
 	if err != nil {
-		fmt.Printf("error while running step '%s': %s\n", args.Step, err.Error())
+		fmt.Printf("error while running step '%s': %s\n", cli.Step, err.Error())
 		os.Exit(1)
 	}
 }

@@ -1,7 +1,5 @@
 package main
 
-import "os"
-
 type Args struct {
 	Step    string
 	Args    []string
@@ -9,8 +7,7 @@ type Args struct {
 	Version bool
 }
 
-func ParseArgs() (result Args) {
-	args := os.Args[1:]
+func ParseArgs(args []string) (result Args) {
 	for index, arg := range args {
 		if index == 0 && (arg == "-h" || arg == "--help") {
 			result.Help = true
