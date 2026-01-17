@@ -3,9 +3,10 @@ package main
 import "os"
 
 type Args struct {
-	Step string
-	Args []string
-	Help bool
+	Step    string
+	Args    []string
+	Help    bool
+	Version bool
 }
 
 func ParseArgs() (result Args) {
@@ -16,9 +17,18 @@ func ParseArgs() (result Args) {
 			return
 		}
 
-		if index == 0 && (arg != "-h" && arg != "--help") {
-			result.Step = arg
-			continue
+		if index == 0 {
+			switch arg {
+			case "-h", "--help":
+				result.Help = true
+				return
+			case "-v", "--version":
+				result.Version = true
+				return
+			default:
+				result.Step = arg
+				continue
+			}
 		}
 
 		result.Args = append(result.Args, arg)

@@ -31,8 +31,29 @@ func runStep(runner *Runner, recipe *Recipe, name string) error {
 	return nil
 }
 
+func printHelp() {
+	fmt.Println("A task runner.")
+	fmt.Println("Usage: mk <FLAG> [TASK] [...ARGUMENTS]\n")
+	fmt.Println("Arguments:")
+	fmt.Println("    [TASK]            Task to run. Uses default if not provided.")
+	fmt.Println("    [ARGUMENTS]       Arguments to pass to the task (if it's allowed).\n")
+	fmt.Println("Flags:")
+	fmt.Println("    -h, --help        Prints help message")
+	fmt.Println("    -v, --version     Prints version")
+}
+
 func main() {
 	args := ParseArgs()
+
+	if args.Help {
+		printHelp()
+		return
+	}
+
+	if args.Version {
+		fmt.Printf("mk %s", version)
+		return
+	}
 
 	data, err := os.ReadFile("Mkfile")
 	if err != nil {
