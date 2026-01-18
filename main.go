@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
-func runStep(runner *Runner, recipe *Recipe, name string) error {
+func runStep(runner *Runner, recipe *Recipe, name string, args string) error {
 	step, ok := recipe.Steps[name]
 	if !ok {
 		fmt.Println("step not found")
@@ -14,7 +15,7 @@ func runStep(runner *Runner, recipe *Recipe, name string) error {
 
 	if step.RunBefore != nil {
 		for _, stepName := range step.RunBefore {
-			err := runStep(runner, recipe, stepName)
+			err := runStep(runner, recipe, stepName, args)
 			if err != nil {
 				return err
 			}
@@ -22,6 +23,7 @@ func runStep(runner *Runner, recipe *Recipe, name string) error {
 	}
 
 	for _, command := range step.Commands {
+		command = strings.ReplaceAll(command, "$*", args)
 		err := runner.LaunchCommand(command)
 		if err != nil {
 			return err
@@ -69,8 +71,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	var stepArgs string
+	for _, a := range cli.Args {
+		stepArgs = stepArgs + a + " "
+	}
+	stepArgs = strings.TrimSpace(stepArgs)
 	runner := InitRunner()
-	err = runStep(&runner, recipe, cli.Step)
+	err = runStep(&runner, recipe, cli.Step, stepArgs)
 	if err != nil {
 		fmt.Printf("error while running step '%s': %s\n", cli.Step, err.Error())
 		os.Exit(1)

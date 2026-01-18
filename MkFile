@@ -1,4 +1,10 @@
 default: build
 
-build: build
-    echo "Hello world!"
+run*:
+    go run . $*
+
+build-exe:
+    go build . -o mk.exe
+
+build:
+    go build . -o mk
