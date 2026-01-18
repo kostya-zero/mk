@@ -30,6 +30,11 @@ tidy:
 # For example, run tidy task before build.
 build: tidy
     go build . -o mk
+
+# Add asterisk symbol at the end of the task name
+# and use '$*' to pass command line argument to it.
+run*:
+    go run . $*
 ```
 
 ## License
