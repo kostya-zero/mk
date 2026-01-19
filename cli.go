@@ -6,6 +6,7 @@ type Args struct {
 	Help    bool
 	Version bool
 	List    bool
+	Env     bool
 }
 
 func ParseArgs(args []string) Args {
@@ -25,6 +26,9 @@ func ParseArgs(args []string) Args {
 		return result
 	case "-l", "--list":
 		result.List = true
+		return result
+	case "-e", "--env":
+		result.Env = true
 		return result
 	default:
 		result.Step = args[0]

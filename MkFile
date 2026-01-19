@@ -1,3 +1,6 @@
+$CGO_ENABLED=0
+$GOEXPERIMENT=greenteagc
+
 default: run
 
 run*:

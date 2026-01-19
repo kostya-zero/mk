@@ -35,10 +35,10 @@ func runStep(runner *Runner, recipe *Recipe, name string, args string) error {
 
 func printHelp() {
 	fmt.Println("A task runner.")
-	fmt.Println("Usage: mk <FLAG> [TASK] [...ARGUMENTS]\n")
+	fmt.Printf("Usage: mk <FLAG> [TASK] [...ARGUMENTS]\n\n")
 	fmt.Println("Arguments:")
 	fmt.Println("    [TASK]            Task to run. Uses default if not provided.")
-	fmt.Println("    [ARGUMENTS]       Arguments to pass to the task (if it's allowed).\n")
+	fmt.Printf("    [ARGUMENTS]       Arguments to pass to the task (if it's allowed).\n\n")
 	fmt.Println("Flags:")
 	fmt.Println("    -h, --help        Prints help message")
 	fmt.Println("    -v, --version     Prints version")
@@ -79,12 +79,19 @@ func main() {
 		return
 	}
 
+	if cli.Env {
+		for key, value := range recipe.Env {
+			fmt.Printf("%s=%s\n", key, value)
+		}
+		return
+	}
+
 	var stepArgs string
 	for _, a := range cli.Args {
 		stepArgs = stepArgs + a + " "
 	}
 	stepArgs = strings.TrimSpace(stepArgs)
-	runner := InitRunner()
+	runner := InitRunner(recipe.Env)
 	err = runStep(&runner, recipe, cli.Step, stepArgs)
 	if err != nil {
 		fmt.Printf("error while running step '%s': %s\n", cli.Step, err.Error())

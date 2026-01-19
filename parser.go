@@ -15,6 +15,7 @@ type ParseError struct {
 func ParseRecipe(content string) (*Recipe, *ParseError) {
 	recipe := new(Recipe)
 	recipe.Steps = make(map[string]Step)
+	recipe.Env = make(map[string]string)
 
 	scanner := bufio.NewScanner(strings.NewReader(content))
 
@@ -40,6 +41,33 @@ func ParseRecipe(content string) (*Recipe, *ParseError) {
 			continue
 		}
 
+		if after, ok := strings.CutPrefix(line, "$"); ok {
+			envLine := after
+			left, right, ok := strings.Cut(envLine, "=")
+
+			if !ok || !strings.Contains(envLine, "=") {
+				return nil, &ParseError{
+					LineNumber: lineNo,
+					Message:    "invalid syntax for environment variable",
+				}
+			}
+
+			envName := strings.TrimSpace(left)
+			value := strings.TrimSpace(right)
+
+			// Check if it's not defined multiple times
+			_, ok = recipe.Env[envName]
+			if ok {
+				return nil, &ParseError{
+					LineNumber: lineNo,
+					Message:    fmt.Sprintf("enviornment variable '%s' is already defined", envName),
+				}
+			}
+
+			recipe.Env[envName] = value
+			continue
+		}
+
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
@@ -50,7 +78,7 @@ func ParseRecipe(content string) (*Recipe, *ParseError) {
 			if !ok || strings.Contains(right, ":") {
 				return nil, &ParseError{
 					LineNumber: lineNo,
-					Message:    "this is not a valid step initialization syntax",
+					Message:    "invalid syntax for step initialization",
 				}
 			}
 

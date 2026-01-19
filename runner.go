@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
@@ -9,9 +10,10 @@ import (
 type Runner struct {
 	shell          string
 	launchArgument string
+	env            []string
 }
 
-func InitRunner() (runner Runner) {
+func InitRunner(env map[string]string) (runner Runner) {
 	switch runtime.GOOS {
 	case "windows":
 		runner.shell = "powershell.exe"
@@ -26,6 +28,13 @@ func InitRunner() (runner Runner) {
 		runner.shell = "sh"
 		runner.launchArgument = "-c"
 	}
+
+	if len(env) > 0 {
+		for key, value := range env {
+			runner.env = append(runner.env, fmt.Sprintf("%s=%s", key, value))
+		}
+	}
+
 	return
 }
 
@@ -34,6 +43,7 @@ func (r *Runner) LaunchCommand(args string) error {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Env = append(os.Environ(), r.env...)
 	err := cmd.Run()
 	if err != nil {
 		return err
