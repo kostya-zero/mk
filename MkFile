@@ -4,7 +4,7 @@ run*:
     go run . $*
 
 build-exe:
-    go build . -o mk.exe
+    go build -o mk.exe
 
 build:
-    go build . -o mk
+    go build -o mk

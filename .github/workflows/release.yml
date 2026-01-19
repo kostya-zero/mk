@@ -1,0 +1,73 @@
+name: Build Release Binaries
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+    runs-on: ubuntu-latest
+    name: Build ${{matrix.goos}} ${{matrix.goarch}}
+    env:
+      CGO_ENABLED: "0"
+      GOOS: ${{ matrix.goos }}
+      GOARCH: ${{ matrix.goarch }}
+      MAIN_PKG: "./"
+      BIN_NAME: "mk"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+      - name: Build
+        run: |
+          set -euo pipefail
+
+          outdir="dist/${GOOS}-${GOARCH}
+          mkdir -p "${outdir}"
+
+          exe=""
+          if [ "${GOOS}" = "windows"]; then
+            exe=".exe"
+          fi
+
+          go build \
+             -trimpath \
+             -buildvcs=false \
+             -ldflags="-s -w -buildid=" \
+             -o "${outdir}/${BIN_NAME}${exe}"
+             "${MAIN_PKG}"
+
+          if command -v zip >/dev/null 2>&1; then
+            (cd "${outdir}" && zip -9 "../${BIN_NAME}-${GOOS}-${GOARCH}.zip" "${BIN_NAME}${exe}")
+          else
+            tar -C "${outdir}" -czf "dist/${BIN_NAME}-${GOOS}-${GOARCH}.tar.gz" "${BIN_NAME}${exe}"
+          fi
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BIN_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            dist/${{ env.BIN_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+            dist/${{ env.BIN_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
+          if-no-files-found: error
+          retention-days: 14
