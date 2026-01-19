@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          outdir="dist/${GOOS}-${GOARCH}
+          outdir="dist/${GOOS}-${GOARCH}"
           mkdir -p "${outdir}"
 
           exe=""
