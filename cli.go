@@ -5,35 +5,38 @@ type Args struct {
 	Args    []string
 	Help    bool
 	Version bool
+	List    bool
 }
 
-func ParseArgs(args []string) (result Args) {
-	for index, arg := range args {
-		if index == 0 && (arg == "-h" || arg == "--help") {
-			result.Help = true
-			return
-		}
+func ParseArgs(args []string) Args {
+	var result Args
 
-		if index == 0 {
-			switch arg {
-			case "-h", "--help":
-				result.Help = true
-				return
-			case "-v", "--version":
-				result.Version = true
-				return
-			default:
-				result.Step = arg
-				continue
-			}
-		}
+	if len(args) == 0 {
+		result.Step = "default"
+		return result
+	}
 
-		result.Args = append(result.Args, arg)
+	switch args[0] {
+	case "-h", "--help":
+		result.Help = true
+		return result
+	case "-v", "--version":
+		result.Version = true
+		return result
+	case "-l", "--list":
+		result.List = true
+		return result
+	default:
+		result.Step = args[0]
+	}
+
+	if len(args) > 1 {
+		result.Args = append(result.Args, args[1:]...)
 	}
 
 	if result.Step == "" {
 		result.Step = "default"
 	}
 
-	return
+	return result
 }

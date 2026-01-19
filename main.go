@@ -42,6 +42,7 @@ func printHelp() {
 	fmt.Println("Flags:")
 	fmt.Println("    -h, --help        Prints help message")
 	fmt.Println("    -v, --version     Prints version")
+	fmt.Println("    -l, --list        Prints version")
 }
 
 func main() {
@@ -69,6 +70,13 @@ func main() {
 	if parseError != nil {
 		fmt.Printf("[Mkfile:%d] error: %s\n", parseError.LineNumber, parseError.Message)
 		os.Exit(1)
+	}
+
+	if cli.List {
+		for step := range recipe.Steps {
+			fmt.Println(step)
+		}
+		return
 	}
 
 	var stepArgs string
