@@ -26,6 +26,7 @@ jobs:
     name: Build ${{matrix.goos}} ${{matrix.goarch}}
     env:
       CGO_ENABLED: "0"
+      GOEXPERIMENT: "greenteagc"
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
       MAIN_PKG: "./"
